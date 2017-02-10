@@ -2,6 +2,7 @@ package com.amadeus.session.servlet;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -395,5 +396,30 @@ public class TestSessionHelpers {
     sessionHelpers.interceptHttpListener(caller, event);
     // Called only once - in this method, not in interceptHttpListener
     verify(listenerSet, times(1)).add(caller);
+  }
+
+  @Test
+  public void testSessionPrefix() {
+      when(servletContext.getClassLoader()).thenReturn(this.getClass().getClassLoader());
+      SessionConfiguration sc = new SessionConfiguration();
+      SessionTracking trackingWithDefaultSessionConf = SessionHelpers.getTracking(servletContext, sc); //default is cookieTracking.
+      assertFalse(trackingWithDefaultSessionConf.newId().startsWith("PRAXIS")); //the default value for sessionPrefixNeeded is false.
+
+      sc.setSessionPrefixNeeded(true);
+      sc.setSessionPrefix("PRAXIS");
+      SessionTracking cookieTrackingWithSessionPrefix = SessionHelpers.getTracking(servletContext, sc);
+      assertTrue(cookieTrackingWithSessionPrefix.newId().startsWith("PRAXIS"));
+
+      sc.setSessionPrefixNeeded(false);
+      SessionTracking cookieTrackingWithoutSessionPrefix = SessionHelpers.getTracking(servletContext, sc);
+      assertFalse(cookieTrackingWithoutSessionPrefix.newId().startsWith("PRAXIS"));
+
+      sc.setSessionTracking("URL");
+      SessionTracking urlTrackingWithoutSessionPrefix = SessionHelpers.getTracking(servletContext, sc);
+      assertFalse(urlTrackingWithoutSessionPrefix.newId().startsWith("PRAXIS"));
+
+      sc.setSessionPrefixNeeded(true);
+      SessionTracking urlTrackingWithSessionPrefix = SessionHelpers.getTracking(servletContext, sc);
+      assertTrue(urlTrackingWithSessionPrefix.newId().startsWith("PRAXIS"));
   }
 }
