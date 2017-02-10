@@ -21,12 +21,18 @@ public abstract class BaseSessionTracking implements SessionTracking {
 
   private boolean appendTimestamp;
 
+  private boolean sessionPrefixNeeded;
+
+  private String sessionPrefix;
+
   @Override
   public void configure(SessionConfiguration configuration) {
     // Read standard configuration
     idName = configuration.getSessionIdName();
     String idProviderType = configuration.getAttribute(SessionConfiguration.SESSION_ID_PROVIDER, "random");
     appendTimestamp = configuration.isTimestampSufix();
+    sessionPrefixNeeded = configuration.isSessionPrefixNeeded();
+    sessionPrefix = configuration.getSessionPrefix();
     switch (idProviderType) {
     case "uuid":
       idProvider = new UuidProvider();
@@ -44,6 +50,9 @@ public abstract class BaseSessionTracking implements SessionTracking {
     if (appendTimestamp) {
       StringBuilder suffixedId = new StringBuilder(newId.length() + 11).append(newId);
       newId = suffixedId.append('!').append(System.currentTimeMillis()).toString();
+    }
+    if (sessionPrefixNeeded) {
+        newId = sessionPrefix + "-" + newId;
     }
     return newId;
   }

@@ -298,6 +298,16 @@ public class SessionConfiguration implements Serializable {
    */
   public static final String SESSION_ENCRYPTION_KEY = "com.amadeus.session.encryption.key";
 
+  /**
+   * specifies the prefix to be prepended to sessionId (for various reasons). This is not a mandatory one, but
+   * will use one if provided.
+   */
+  public static final String SESSION_PREFIX = "com.amadeus.session.prefix";
+  /**
+   * This one controls whether sessionPrefix has to be applied or not. Default is false.
+   */
+  public static final String SESSION_PREFIX_REQUIRED = "com.amadeus.session.prefixneeded";
+
   private int maxInactiveInterval;
   private boolean distributable;
   private boolean sticky;
@@ -307,6 +317,7 @@ public class SessionConfiguration implements Serializable {
   private boolean forceDistributable;
   private boolean loggingMdcActive;
   private boolean usingEncryption;
+  private boolean sessionPrefixNeeded;
   private String loggingMdcKey;
   private String node;
   private String namespace;
@@ -315,6 +326,7 @@ public class SessionConfiguration implements Serializable {
   private String sessionTracking;
   private String sessionIdName;
   private String encryptionKey;
+  private String sessionPrefix;
 
   private Set<String> nonCacheable;
   private ReplicationTrigger replicationTrigger;
@@ -341,6 +353,8 @@ public class SessionConfiguration implements Serializable {
     interceptListeners = Boolean.parseBoolean(getPropertySecured(INTERCEPT_LISTENERS, null));
     forceDistributable = Boolean.parseBoolean(getPropertySecured(FORCE_DISTRIBUTABLE, null));
     commitOnAllConcurrent = Boolean.parseBoolean(getPropertySecured(COMMIT_ON_ALL_CONCURRENT, null));
+    sessionPrefix = getPropertySecured(SESSION_PREFIX, null);
+    sessionPrefixNeeded = Boolean.parseBoolean(getPropertySecured(SESSION_PREFIX_REQUIRED, "false"));
 
     setNonCacheable(getPropertySecured(NON_CACHEABLE_ATTRIBUTES, null));
     String replicationValue = getPropertySecured(SESSION_REPLICATION_TRIGGER, DEFAULT_REPLICATION_TRIGGER.toString());
@@ -399,6 +413,8 @@ public class SessionConfiguration implements Serializable {
     loggingMdcActive = read(LOG_MDC_SESSION_ENABLED, loggingMdcActive);
     loggingMdcKey = read(LOG_MDC_SESSION_NAME, loggingMdcKey);
     forceDistributable = read(FORCE_DISTRIBUTABLE, forceDistributable);
+    sessionPrefix = read(SESSION_PREFIX, sessionPrefix);
+    sessionPrefixNeeded = read(SESSION_PREFIX_REQUIRED, sessionPrefixNeeded);
     setEncryptionKey(provider.getAttribute(SESSION_ENCRYPTION_KEY));
 
     String value = provider.getAttribute(SESSION_ENCRYPTION_KEY);
@@ -599,6 +615,34 @@ public class SessionConfiguration implements Serializable {
    */
   public void setSticky(boolean sticky) {
     this.sticky = sticky;
+  }
+
+  /**
+   * @return the sessionPrefix
+   */
+  public String getSessionPrefix() {
+    return sessionPrefix;
+  }
+
+  /**
+   * @param sessionPrefix the sessionPrefix to set
+   */
+  public void setSessionPrefix(String sessionPrefix) {
+    this.sessionPrefix = sessionPrefix;
+  }
+
+  /**
+   * @return the sessionPrefixNeeded
+   */
+  public boolean isSessionPrefixNeeded() {
+    return sessionPrefixNeeded;
+  }
+
+  /**
+   * @param sessionPrefixNeeded the sessionPrefixNeeded to set
+   */
+  public void setSessionPrefixNeeded(boolean sessionPrefixNeeded) {
+    this.sessionPrefixNeeded = sessionPrefixNeeded;
   }
 
   /**
@@ -1013,7 +1057,9 @@ public class SessionConfiguration implements Serializable {
            .append(repositoryFactory).append(", sessionTracking=").append(sessionTracking).append(", encryptionKey=")
            .append(encryptionKey).append(", nonCacheable=").append(nonCacheable).append(", replicationTrigger=")
            .append(replicationTrigger).append(", attributes=").append(attributes).append(", commitOnAllConcurrent=")
-           .append(commitOnAllConcurrent).append(", timestamp=").append(timestampSufix).append("]");
+           .append(commitOnAllConcurrent).append(", timestamp=").append(timestampSufix).append(", sessionPrefixNeeded=")
+           .append(sessionPrefixNeeded).append(", sessionPrefix=").append(sessionPrefix)
+           .append("]");
     return builder.toString();
   }
 }

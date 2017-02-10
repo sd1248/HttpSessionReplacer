@@ -36,6 +36,8 @@ public class TestSessionConfiguration {
     assertEquals(SessionConfiguration.DEFAULT_REPLICATION_TRIGGER, sc.getReplicationTrigger());
     assertEquals(SessionConfiguration.DEFAULT_SESSION_TIMEOUT_VALUE_NUM, sc.getMaxInactiveInterval());
     assertNull(sc.getNonCacheable());
+    assertFalse(sc.isSessionPrefixNeeded());
+    assertNull(sc.getSessionPrefix());
   }
 
   @Test
@@ -80,6 +82,23 @@ public class TestSessionConfiguration {
     SessionConfiguration sc = new SessionConfiguration();
     assertEquals(ReplicationTrigger.SET, sc.getReplicationTrigger());
     System.getProperties().remove(SessionConfiguration.SESSION_REPLICATION_TRIGGER);
+  }
+
+  @Test
+  public void testSessionPrefix() {
+      System.setProperty(SessionConfiguration.SESSION_PREFIX, "PRAXIS");
+      SessionConfiguration sc = new SessionConfiguration();
+      assertEquals("PRAXIS", sc.getSessionPrefix());
+      System.getProperties().remove(SessionConfiguration.SESSION_PREFIX);
+  }
+
+  @Test
+  public void testSessionPrefixFromProvider() {
+      SessionConfiguration sc = new SessionConfiguration();
+      AttributeProvider provider = Mockito.mock(AttributeProvider.class);
+      Mockito.when(provider.getAttribute(SessionConfiguration.SESSION_PREFIX)).thenReturn("PRAXIS");
+      sc.initializeFrom(provider);
+      assertEquals("PRAXIS", sc.getSessionPrefix());
   }
 
   @Test

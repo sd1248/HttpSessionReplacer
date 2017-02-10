@@ -192,6 +192,10 @@ It is possible to tweak the generated session id format using proper configurati
 Parameter `com.amadeus.session.timestamp` can be used to enforce presence of '!xxxxx' at end of generated jsessionid
 xxxxx being the number of millis ellapsed since january 1970 and corresponding to UNIX timestamp.
 
+It is also possible to prefix the session id with a value. The value is provided via servlet or system property
+`com.amadeus.session.prefix`. This logic of adding prefix to the session id can be toggled by another parameter
+`com.amadeus.session.prefixneeded`, that can be set via servlet or system property.
+
 ##### Session isolation
 
 Sessions can be isolated per application.
